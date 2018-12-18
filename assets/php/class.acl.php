@@ -1,23 +1,17 @@
 <?php
 class ACL {
-
     var $perms = array();  //Array : Stores the permissions for the user
     var $userID = 0;   //Integer : Stores the ID of the current user
     var $userRoles = array(); //Array : Stores the roles of the current user
     var $con;
-    
-    
     function __construct($userID = '') {
+        
         
         $myDatabase = new Database();
         
         $conn = $myDatabase->getConexion();
         
         $this->con = $conn;
-        echo "<br><br><br><br>";
-        echo "<br><br><br><br>";
-        echo "<br><br><br><br>";
-        echo "<br><br><br><br>";
         
         if ($userID != '') {
             $this->userID = floatval($userID);
@@ -40,22 +34,25 @@ class ACL {
 
     function getPermKeyFromID($permID) {
         $strSQL = "SELECT `permKey` FROM `permissions` WHERE `ID` = " . floatval($permID) . " LIMIT 1";
-        $data = mysql_query($strSQL);
-        $row = mysql_fetch_array($data);
+        $stmt = $this->con->prepare($strSQL);
+        $stmt->execute();
+        $row = $stmt->fetch();
         return $row[0];
     }
 
     function getPermNameFromID($permID) {
         $strSQL = "SELECT `permName` FROM `permissions` WHERE `ID` = " . floatval($permID) . " LIMIT 1";
-        $data = mysql_query($strSQL);
-        $row = mysql_fetch_array($data);
+        $stmt = $this->con->prepare($strSQL);
+        $stmt->execute();
+        $row = $stmt->fetch();
         return $row[0];
     }
 
     function getRoleNameFromID($roleID) {
         $strSQL = "SELECT `roleName` FROM `roles` WHERE `ID` = " . floatval($roleID) . " LIMIT 1";
-        $data = mysql_query($strSQL);
-        $row = mysql_fetch_array($data);
+        $stmt = $this->con->prepare($strSQL);
+        $stmt->execute();
+        $row = $stmt->fetch();
         return $row[0];
     }
 
@@ -112,7 +109,7 @@ class ACL {
         }
         
         $stmt = $this->con->prepare($roleSQL);
-
+        $stmt->execute();
         $perms = array();
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $pK = strtolower($this->getPermKeyFromID($row['permID']));

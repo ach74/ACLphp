@@ -1,6 +1,5 @@
 <?php
-phpinfo();
-start_session();
+session_start();
 include("assets/php/database.php");
 
 include("assets/php/class.acl.php");
