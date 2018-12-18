@@ -1,20 +1,22 @@
 <?php
+phpinfo();
+start_session();
 include("assets/php/database.php");
 
 include("assets/php/class.acl.php");
 
-echo "<br><br>";
-echo "<br><br>";
-echo "<br><br>";
-echo "<br><br>";
-
 if (isset($_GET['userID'])) {
     $userID = $_GET['userID'];
+    $_SESSION['userID'] = $userID;
 } else {
-    $userID = 0;
+    $userID = 1;
+    $_SESSION['userID'] = $userID;
 }
-$_SESSION['userID'] = 1;
-$myACL = new ACL($con);
+
+
+$myDatabase = new Database();
+$con = $myDatabase->getConexion();
+$myACL = new ACL($userID);
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
@@ -26,30 +28,30 @@ $myACL = new ACL($con);
         <div id="header"></div>
         <div id="adminButton"><a href="admin/">Admin Screen</a></div>
         <div id="page">
-            <h2>Permissions for <?= $myACL->getUsername($userID); ?>:</h2>
+            <h2>Permissions for <?php echo $myACL->getUsername($userID); ?>:</h2>
             <?php
             $userACL = new ACL($userID);
             $aPerms = $userACL->getAllPerms('full');
-            foreach ($aPerms as $k => $v)
-            {
-            echo "<strong>" . $v['Name'] . ": </strong>";
-            echo "<img src=\"assets/img/";
-            if ($userACL->hasPermission($v['Key']) === true)
-            {
-            echo "allow.png";
-            $pVal = "Allow";
-            } else {
-            echo "deny.png";
-            $pVal = "Deny";
-            }
-            echo "\" width=\"16\" height=\"16\" alt=\"$pVal\" /><br />";
+            foreach ($aPerms as $k => $v) {
+                echo "<strong>" . $v['Name'] . ": </strong>";
+                echo "<img src=\"assets/img/";
+                if ($userACL->hasPermission($v['Key']) === true) {
+                    echo "allow.png";
+                    $pVal = "Allow";
+                } else {
+                    echo "deny.png";
+                    $pVal = "Deny";
+                }
+                echo "\" width=\"16\" height=\"16\" alt=\"$pVal\" /><br />";
             }
             ?>
             <h3>Change User:</h3>
-            <? 
+            <?php
             $strSQL = "SELECT * FROM `users` ORDER BY `Username` ASC";
-            $data = mysql_query($strSQL);
-            while ($row = mysql_fetch_assoc($data))
+            
+            $stmt = $con->prepare($strSQL);
+            $stmt->execute();
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC))
             {
             echo "<a href=\"?userID=" . $row['ID'] . "\">" . $row['username'] . "</a><br />";
             }

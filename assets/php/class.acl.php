@@ -1,14 +1,24 @@
 <?php
-
 class ACL {
 
     var $perms = array();  //Array : Stores the permissions for the user
     var $userID = 0;   //Integer : Stores the ID of the current user
     var $userRoles = array(); //Array : Stores the roles of the current user
-    private $con;
-
-    function __constructor($conn, $userID = '') {
+    var $con;
+    
+    
+    function __construct($userID = '') {
+        
+        $myDatabase = new Database();
+        
+        $conn = $myDatabase->getConexion();
+        
         $this->con = $conn;
+        echo "<br><br><br><br>";
+        echo "<br><br><br><br>";
+        echo "<br><br><br><br>";
+        echo "<br><br><br><br>";
+        
         if ($userID != '') {
             $this->userID = floatval($userID);
         } else {
@@ -17,11 +27,7 @@ class ACL {
         $this->userRoles = $this->getUserRoles('ids');
         $this->buildACL();
     }
-
-    function ACL($userID = '') {
-        $this->__constructor($userID);
-        //crutch for PHP4 setups
-    }
+    
 
     function buildACL() {
         //first, get the rules for the user's role
@@ -54,7 +60,7 @@ class ACL {
     }
 
     function getUserRoles() {
-        
+
         $strSQL = "SELECT * FROM `user_roles` WHERE `userID` = " . floatval($this->userID) . " ORDER BY `addDate` ASC";
         $stmt = $this->con->prepare($strSQL);
         $stmt->execute();
@@ -85,9 +91,8 @@ class ACL {
         $strSQL = "SELECT * FROM `permissions` ORDER BY `permName` ASC";
 
         $stmt = $this->con->prepare($strSQL);
-
+        $stmt->execute();
         $resp = array();
-
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             if ($format == 'full') {
                 $resp[$row['permKey']] = array('ID' => $row['ID'], 'Name' => $row['permName'], 'Key' => $row['permKey']);
@@ -105,6 +110,7 @@ class ACL {
         } else {
             $roleSQL = "SELECT * FROM `role_perms` WHERE `roleID` = " . floatval($role) . " ORDER BY `ID` ASC";
         }
+        
         $stmt = $this->con->prepare($roleSQL);
 
         $perms = array();
@@ -165,14 +171,15 @@ class ACL {
         }
     }
 
-    function getUsername($userID) {
-        $strSQL = "SELECT `username` FROM `users` WHERE `ID` = " . floatval($userID) . " LIMIT 1";
+    public function getUsername($userID) {
+        if ($userID == "") {
+            $userID = 1;
+        }
+        $strSQL = "SELECT username FROM users WHERE ID = " . floatval($userID) . " LIMIT 1";
         $stmt = $this->con->prepare($strSQL);
-        $data = mysql_query($strSQL);
-
+        $stmt->execute();
         $row = $stmt->fetch();
         return $row[0];
     }
 
 }
-?>

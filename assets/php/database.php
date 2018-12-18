@@ -1,18 +1,20 @@
 <?php
 
+class Database {
 
-ob_start();
-$host = "localhost";
-$db_name = "acl_test";
-$username = "root";
-$password = "";
+    private $host = "localhost";
+    private $db_name = "acl_test";
+    private $username = "root";
+    private $password = "";
+    private $con;
 
-try {
-    $con = new PDO("mysql:host={$host};dbname={$db_name}", $username, $password);
+    public function getConexion() {
+        try {
+            $this->con = new PDO("mysql:host=$this->host;dbname=$this->db_name", $this->username, $this->password);
+        } catch (PDOException $exception) {
+            echo "Connection error: " . $exception->getMessage();
+        }
+        return $this->con;
+    }
 
- 
-   
-} catch (PDOException $exception) {
-    echo "Connection error: " . $exception->getMessage();
 }
-?>
