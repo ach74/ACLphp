@@ -6,7 +6,6 @@ class ACL {
     var $con;
     function __construct($userID = '') {
         
-        
         $myDatabase = new Database();
         
         $conn = $myDatabase->getConexion();
@@ -20,6 +19,7 @@ class ACL {
         }
         $this->userRoles = $this->getUserRoles('ids');
         $this->buildACL();
+        
     }
     
 
@@ -71,9 +71,10 @@ class ACL {
     function getAllRoles($format = 'ids') {
         $format = strtolower($format);
         $strSQL = "SELECT * FROM `roles` ORDER BY `roleName` ASC";
-        $data = mysql_query($strSQL);
+        $stmt = $this->con->prepare($strSQL);
+        $stmt->execute();
         $resp = array();
-        while ($row = mysql_fetch_array($data)) {
+        while ($row = $stmt->fetch()) {
             if ($format == 'full') {
                 $resp[] = array("ID" => $row['ID'], "Name" => $row['roleName']);
             } else {
@@ -86,7 +87,6 @@ class ACL {
     function getAllPerms($format = 'ids') {
         $format = strtolower($format);
         $strSQL = "SELECT * FROM `permissions` ORDER BY `permName` ASC";
-
         $stmt = $this->con->prepare($strSQL);
         $stmt->execute();
         $resp = array();
